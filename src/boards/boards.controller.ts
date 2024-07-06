@@ -21,6 +21,11 @@ import { DeleteResult } from 'typeorm';
 export class BoardsController {
   constructor(private boardsService: BoardsService) {}
 
+  @Get()
+  getAllBoard(): Promise<Board[]> {
+    return this.boardsService.getAllBoards();
+  }
+
   //   @Get()
   //   getAllBoard(): Board[] {
   //     return this.boardsService.getAllBoards();
@@ -56,6 +61,14 @@ export class BoardsController {
   //   deleteBoard(@Param('id') id: String) {
   //     this.boardsService.deleteBoard(id);
   //   }
+
+  @Patch('/:id/status')
+  updateBoardStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('status', BoardStatusValidationPiple) status: BoardStatus,
+  ): Promise<Board> {
+    return this.boardsService.updateBoardStatus(id, status);
+  }
 
   //   @Patch('/:id/status')
   //   updateBoardStatus(

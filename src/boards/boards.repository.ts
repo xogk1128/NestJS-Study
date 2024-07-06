@@ -16,6 +16,10 @@ export class BoardRepository extends Repository<Board> {
     super(Board, dataSource.createEntityManager());
   }
 
+  async getAllBoards(): Promise<Board[]> {
+    return await this.find();
+  }
+
   async createBoard(createBoardDto: CreateBoardDto): Promise<Board> {
     const { title, description } = createBoardDto;
 
@@ -34,5 +38,13 @@ export class BoardRepository extends Repository<Board> {
 
   async deleteBoard(id: number): Promise<DeleteResult> {
     return await this.delete(id);
+  }
+
+  async updateBoardStatus(id: number, status: BoardStatus): Promise<Board> {
+    const board = await this.getBoardById(id);
+    board.status = status;
+    await this.save(board);
+
+    return board;
   }
 }
