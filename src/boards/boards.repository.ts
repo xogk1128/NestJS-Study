@@ -9,6 +9,7 @@ import { DataSource, DeleteResult, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { BoardStatus } from './boards-status.enum';
+import { User } from 'src/auth/user.entity';
 
 @Injectable()
 export class BoardRepository extends Repository<Board> {
@@ -20,13 +21,25 @@ export class BoardRepository extends Repository<Board> {
     return await this.find();
   }
 
-  async createBoard(createBoardDto: CreateBoardDto): Promise<Board> {
+  async getAllBoardsByUser(user: User): Promise<Board[]> {
+    return await this.createQueryBuilder('board')
+      .where('board.userId = :userId', { userId: user.id })
+      .getMany();
+  }
+
+  async createBoard(
+    createBoardDto: CreateBoardDto,
+    user: User,
+  ): Promise<Board> {
     const { title, description } = createBoardDto;
 
-    const board = new Board();
-    board.title = title;
-    board.description = description;
-    board.status = BoardStatus.PUBLIC;
+    const board = this.create({
+      title,
+      description,
+      status: BoardStatus.PUBLIC,
+      user,
+    });
+
     await this.save(board);
 
     return board;
@@ -36,8 +49,8 @@ export class BoardRepository extends Repository<Board> {
     return await this.findOneBy({ id: id });
   }
 
-  async deleteBoard(id: number): Promise<DeleteResult> {
-    return await this.delete(id);
+  async deleteBoard(id: number, user: User): Promise<DeleteResult> {
+    return await this.delete({ id, user });
   }
 
   async updateBoardStatus(id: number, status: BoardStatus): Promise<Board> {

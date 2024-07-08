@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BoardRepository } from './boards.repository';
 import { Board } from './boards.entity';
 import { DeleteResult } from 'typeorm';
+import { User } from 'src/auth/user.entity';
 
 @Injectable()
 export class BoardsService {
@@ -18,12 +19,16 @@ export class BoardsService {
     return this.boardRepository.getAllBoards();
   }
 
+  getAllBoardsByUser(user: User): Promise<Board[]> {
+    return this.boardRepository.getAllBoardsByUser(user);
+  }
+
   //   getAllBoards(): Board[] {
   //     return this.boards;
   //   }
 
-  createBoard(createBoardDto: CreateBoardDto): Promise<Board> {
-    return this.boardRepository.createBoard(createBoardDto);
+  createBoard(createBoardDto: CreateBoardDto, user: User): Promise<Board> {
+    return this.boardRepository.createBoard(createBoardDto, user);
   }
 
   //   createBoard(createBoardDto: CreateBoardDto): Board {
@@ -53,8 +58,8 @@ export class BoardsService {
   //     return found;
   //   }
 
-  async deleteBoard(id: number): Promise<DeleteResult> {
-    const reuslt = await this.boardRepository.deleteBoard(id);
+  async deleteBoard(id: number, user: User): Promise<DeleteResult> {
+    const reuslt = await this.boardRepository.deleteBoard(id, user);
 
     if (reuslt.affected === 0) {
       throw new NotFoundException(`Can't find Board with id ${id}`);
