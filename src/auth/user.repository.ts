@@ -45,23 +45,23 @@ export class UserRepository extends Repository<User> {
     }
   }
 
-  async signIn(authCredentialsDto: AuthCredentialsDto): Promise<Object> {
-    const { username, password } = authCredentialsDto;
+  //   async signIn(authCredentialsDto: AuthCredentialsDto): Promise<Object> {
+  //     const { username, password } = authCredentialsDto;
 
-    const user = await this.findOne({ where: { username } });
+  //     const user = await this.findOne({ where: { username } });
 
-    if (user && (await bcrypt.compare(password, user.password))) {
-      const payload = { username };
-      const accessToken = await this.jwtService.sign(payload);
+  //     if (user && (await bcrypt.compare(password, user.password))) {
+  //       const payload = { username };
+  //       const accessToken = await this.jwtService.sign(payload);
 
-      return {
-        message: '로그인에 성공하였습니다.',
-        accessToken,
-      };
-    } else {
-      throw new UnauthorizedException('login failed');
-    }
-  }
+  //       return {
+  //         message: '로그인에 성공하였습니다.',
+  //         accessToken,
+  //       };
+  //     } else {
+  //       throw new UnauthorizedException('login failed');
+  //     }
+  //   }
 
   async checkUsername(
     authCheckUsernameDto: AuthCheckUsernameDto,
@@ -105,5 +105,26 @@ export class UserRepository extends Repository<User> {
       message: '성공적으로 변경되었습니다!',
       data: userData,
     };
+  }
+
+  // 토큰 재발급
+  async updateRefreshToken(
+    userId: number,
+    refreshToken: string,
+  ): Promise<void> {
+    await this.update(userId, { refreshToken });
+  }
+
+  async validateUserPassword(
+    authCredentialsDto: AuthCredentialsDto,
+  ): Promise<User> {
+    const { username, password } = authCredentialsDto;
+    const user = await this.findOne({ where: { username } });
+
+    if (user && (await bcrypt.compare(password, user.password))) {
+      return user;
+    } else {
+      return null;
+    }
   }
 }

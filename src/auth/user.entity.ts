@@ -23,6 +23,9 @@ export class User extends BaseEntity {
   @Column()
   password: string;
 
+  @Column({ nullable: true })
+  refreshToken: string;
+
   @OneToMany((type) => Board, (board) => board.user, {
     eager: true,
     cascade: true,
